@@ -95,13 +95,14 @@ function modify_etc_file()
     proxy_user_modify="`cat /etc/tsocks.conf | grep ^"default_user =" | awk -F '=' '{print $2}'`"
     proxy_pass_modify="`cat /etc/tsocks.conf | grep ^"default_pass =" | awk -F '=' '{print $2}'`"
     current_etc_path="/data/www/upgrade/project/${remote_temp_etc_path}"
-    mkdir -p ${current_etc_path}
-    cp /etc/tsocks.conf ${current_etc_path}/tsocks.conf
-    sed -i "s#${local_modify}# ${first_nu}.0.0.0/255.0.0.0#g" ${current_etc_path}/tsocks.conf
-    sed -i "s#${server_modify}# ${proxy_ip}#g" ${current_etc_path}/tsocks.conf
-    sed -i "s#${proxy_user_modify}# ${proxy_user}#g" ${current_etc_path}/tsocks.conf
-    sed -i "s#${proxy_pass_modify}# ${proxy_pass}#g" ${current_etc_path}/tsocks.conf
-    cp ${current_etc_path}/tsocks.conf /etc/tsocks.conf
+    mkdir -p ${current_etc_path}/${proxy_ip}
+    cp /etc/tsocks.conf ${current_etc_path}/${proxy_ip}/tsocks.conf
+    sed -i "s#${local_modify}# ${first_nu}.0.0.0/255.0.0.0#g" ${current_etc_path}/${proxy_ip}/tsocks.conf
+    sed -i "s#${server_modify}# ${proxy_ip}#g" ${current_etc_path}/${proxy_ip}/tsocks.conf
+    sed -i "s#${proxy_user_modify}# ${proxy_user}#g" ${current_etc_path}/${proxy_ip}/tsocks.conf
+    sed -i "s#${proxy_pass_modify}# ${proxy_pass}#g" ${current_etc_path}/${proxy_ip}/tsocks.conf
+    cp ${current_etc_path}/${proxy_ip}/tsocks.conf /etc/tsocks.conf
+    rm -rf "${current_etc_path}/${proxy_ip}"
   fi
 }
 
