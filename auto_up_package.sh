@@ -68,10 +68,6 @@ exec 4>&-
     no_exist_file_list="$(echo ${no_exist_file_list})"
     echo -e "\n香港ftp缺少升级包(${no_exist_file_list}),请先上传!" && exit 1
   fi
-  #if [ "${remove_package_sum}" -ge "1" ];then
-    # 将传输完的文件删除
-    remove_local_file
-  #fi
 }
 
 # 删除本地临时文件
@@ -157,6 +153,10 @@ function overseas_upload()
     # 上传升级包
     auto_up_package_to_ftp
   done
+  #if [ "${remove_package_sum}" -ge "1" ];then
+    # 将传输完的文件删除
+    remove_local_file
+  #fi
 }
 
 while test $# != 0
