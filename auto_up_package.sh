@@ -138,7 +138,7 @@ function overseas_upload()
       connect_ftp="tsocks lftp -u ${user},${pass} ftp://${ftp_host}:21"
     elif [ "${ftp_host}" == "10.60.0.216" ];then
       if [ -z "${is_upload_to_ru}" ];then
-        continue
+        echo "${project_name}项目升级包不需从香港ftp中转到俄罗斯ftp..." && continue
       fi
       user=exupgrade
       pass=BoUVmerZMGRuB4N2
