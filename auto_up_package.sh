@@ -88,7 +88,7 @@ function remove_local_file()
 # ftp代理服务器修改etc文件
 function modify_etc_file()
 {
-  if [ -n "${proxy_ip}" ] && [ -z "`cat "${etc_file}" | grep "${proxy_ip}"`" ];then
+  if [ -n "${proxy_ip}" ] && [ -n "${proxy_user}" ] && [ -n "${proxy_pass}" ] && [ -z "`cat "${etc_file}" | grep "${proxy_ip}"`" ];then
     first_nu="`echo "${proxy_ip}" | awk -F '.' '{print $1}'`"
     local_modify="`cat /etc/tsocks.conf | grep ^"local =" | grep 255.0.0 | awk -F '=' '{print $2}'`"
     server_modify="`cat /etc/tsocks.conf | grep ^"server =" | awk -F '=' '{print $2}'`"
@@ -102,7 +102,7 @@ function modify_etc_file()
     sed -i "s#${proxy_user_modify}# ${proxy_user}#g" ${current_etc_path}/${proxy_ip}/tsocks.conf
     sed -i "s#${proxy_pass_modify}# ${proxy_pass}#g" ${current_etc_path}/${proxy_ip}/tsocks.conf
     cp ${current_etc_path}/${proxy_ip}/tsocks.conf /etc/tsocks.conf
-    rm -rf "${current_etc_path}/${proxy_ip}"
+    rm -rf "${current_etc_path}"
   fi
 }
 
@@ -138,7 +138,7 @@ function overseas_upload()
       connect_ftp="tsocks lftp -u ${user},${pass} ftp://${ftp_host}:21"
     elif [ "${ftp_host}" == "10.60.0.216" ];then
       if [ -z "${is_upload_to_ru}" ];then
-        echo "${project_name}项目升级包不需从香港ftp中转到俄罗斯ftp..." && continue
+        echo "${project_name}项目升级包不需从香港ftp中转到俄罗斯ftp，跳过..." && continue
       fi
       user=exupgrade
       pass=BoUVmerZMGRuB4N2
