@@ -15,19 +15,19 @@ function auto_up_package_to_ftp()
     update_file="${recovery_file}"
   fi
   no_exist_file_list=
-  for file in ${update_file};do
-    if [ ! -f "${local_update_path}${file}" ];then
-      no_exist_file_list="${no_exist_file_list} ${file}"
-    fi
-  done
-  tmp_fifofile="/tmp/$$.fifo"
-  mkfifo $tmp_fifofile
-  exec 4<>$tmp_fifofile
-  rm $tmp_fifofile
-  for ((i=0;i<${thread};i++));do
-    echo ""
-  done >&4
   if [ "${only_upload_recovery}" != "true" ];then
+    for file in ${update_file};do
+      if [ ! -f "${local_update_path}${file}" ];then
+        no_exist_file_list="${no_exist_file_list} ${file}"
+      fi
+    done
+    tmp_fifofile="/tmp/$$.fifo"
+    mkfifo $tmp_fifofile
+    exec 4<>$tmp_fifofile
+    rm $tmp_fifofile
+    for ((i=0;i<${thread};i++));do
+      echo ""
+    done >&4
     for file in ${update_file}
     do
     if [ -f "${local_update_path}${file}" ];then
@@ -88,7 +88,7 @@ function remove_local_file()
 # ftp代理服务器修改etc文件
 function modify_etc_file()
 {
-  if [ -z "`cat "${etc_file}" | grep "${proxy_ip}"`" ];then
+  if [ -n "${proxy_ip}" ] && [ -z "`cat "${etc_file}" | grep "${proxy_ip}"`" ];then
     first_nu="`echo "${proxy_ip}" | awk -F '.' '{print $1}'`"
     local_modify="`cat /etc/tsocks.conf | grep ^"local =" | grep 255.0.0 | awk -F '=' '{print $2}'`"
     server_modify="`cat /etc/tsocks.conf | grep ^"server =" | awk -F '=' '{print $2}'`"
@@ -135,6 +135,7 @@ function overseas_upload()
       proxy_user="exupgrade"
       proxy_pass="BoUVmerZMGRuB4N2"
       echo "${project_name}项目升级包正在从香港ftp中转到印度ftp..."
+      connect_ftp="tsocks lftp -u ${user},${pass} ftp://${ftp_host}:21"
     elif [ "${ftp_host}" == "10.60.0.216" ];then
       if [ -z "${is_upload_to_ru}" ];then
         continue
@@ -145,8 +146,13 @@ function overseas_upload()
       proxy_user="exupgrade"
       proxy_pass="BoUVmerZMGRuB4N2"
       echo "${project_name}项目升级包正在从香港ftp中转到俄罗斯ftp..."
+      connect_ftp="tsocks lftp -u ${user},${pass} ftp://${ftp_host}:21"
+    elif [ "${ftp_host}" == "47.74.180.106" ];then
+      user=exupgrade
+      pass=DCyDsybhLLguk7Yp
+      echo "${project_name}项目升级包正在从香港ftp中转到新加坡ftp..."
+      connect_ftp="lftp -u ${user},${pass} ftp://${ftp_host}:21"
     fi
-    connect_ftp="tsocks lftp -u ${user},${pass} ftp://${ftp_host}:21"
 
     # 修改ftp代理服务器etc文件
     modify_etc_file
