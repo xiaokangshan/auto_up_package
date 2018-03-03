@@ -137,7 +137,7 @@ function overseas_upload()
       echo "${project_name}项目升级包正在从香港ftp中转到印度ftp..."
       connect_ftp="tsocks lftp -u ${user},${pass} ftp://${ftp_host}:21"
     elif [ "${ftp_host}" == "10.60.0.216" ];then
-      if [ -z "${is_upload_to_ru}" ];then
+      if [ "${is_upload_to_ru}" != "true" ];then
         echo "${project_name}项目升级包不需从香港ftp中转到俄罗斯ftp，跳过..." && continue
       fi
       user=exupgrade
@@ -206,8 +206,7 @@ do
   remove_package_sum=$1
   ;;
   --is_upload_to_ru)
-  shift
-  is_upload_to_ru=$1
+  is_upload_to_ru=true
   ;;
   esac
   shift
