@@ -13,6 +13,7 @@ function auto_up_package_to_ftp()
   recovery_file="$(echo "${recovery_file}" | tr ',' ' ')"
   if [ "${upload_recovery_website}" == "true" ];then
     update_file="${recovery_file}"
+    update_ftp_path="/official/officialFiles/"
   fi
   no_exist_file_list=
   if [ "${only_upload_recovery}" != "true" ];then
