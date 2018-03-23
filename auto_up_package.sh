@@ -9,12 +9,19 @@
 # 上传在线升级包到ftp
 function auto_up_package_to_ftp()
 {
+  official_file="$(echo "${official_file}" | tr ',' ' ')"
+  if [ "${upload_recovery_website}" == "true" ] && [ -f "${local_official_path}${official_file}" ];then
+    echo "正在上传${official_file}官网升级包，请稍后..."
+    ${connect_ftp} <<EOF
+    cd ${official_ftp_path}
+    lcd ${local_official_path}
+    put ${official_file}
+    bye
+EOF
+    return 0
+  fi
   update_file="$(echo "${update_file}" | tr ',' ' ')"
   recovery_file="$(echo "${recovery_file}" | tr ',' ' ')"
-  if [ "${upload_recovery_website}" == "true" ];then
-    update_file="${recovery_file}"
-    update_ftp_path="/official/officialFiles/"
-  fi
   no_exist_file_list=
   if [ "${only_upload_recovery}" != "true" ];then
     for file in ${update_file};do
@@ -47,19 +54,17 @@ EOF
     fi
     done
   fi
-  if [ "${upload_recovery_website}" != "true" ];then
-    if [ -n "${recovery_file}" ] && [ "${no_upload_recovery}" != "true" ];then
-      if [ ! -f "${local_recovery_path}${recovery_file}" ];then
-        no_exist_file_list="${no_exist_file_list} ${recovery_file}"
-      else
-        echo "正在上传recovery包${recovery_file}，请稍后..."
-        ${connect_ftp} <<EOF
-        cd ${recovery_ftp_path}
-        lcd ${local_recovery_path}
-        put ${recovery_file}
-        bye
+  if [ "${no_upload_recovery}" != "true" ];then
+    if [ ! -f "${local_recovery_path}${recovery_file}" ];then
+      no_exist_file_list="${no_exist_file_list} ${recovery_file}"
+    else
+      echo "正在上传recovery包${recovery_file}，请稍后..."
+      ${connect_ftp} <<EOF
+      cd ${recovery_ftp_path}
+      lcd ${local_recovery_path}
+      put ${recovery_file}
+      bye
 EOF
-      fi
     fi
   fi
 wait
@@ -112,8 +117,10 @@ function overseas_upload()
 {
   update_ftp_path="/upload/UpdateFiles/"
   recovery_ftp_path="/recovery/recoveryFiles/"
+  official_ftp_path="/official/officialFiles/"
   local_update_path="/data/www/upgrade/upload/UpdateFiles/"
   local_recovery_path="/data/www/upgrade/recovery/recoveryFiles/"
+  local_official_path="/data/www/upgrade/official/officialFiles/"
   thread=4
   etc_file="/etc/tsocks.conf"
   transfor_ftp_host="$(echo "${transfor_ftp_host}" | tr ',' ' ')"
@@ -161,10 +168,7 @@ function overseas_upload()
     # 上传升级包
     auto_up_package_to_ftp
   done
-  #if [ "${remove_package_sum}" -ge "1" ];then
-    # 将传输完的文件删除
-    remove_local_file
-  #fi
+  remove_local_file
 }
 
 while test $# != 0
@@ -202,9 +206,9 @@ do
   shift
   transfor_ftp_host=$1
   ;;
-  --remove_package_sum)
+  --official_file)
   shift
-  remove_package_sum=$1
+  official_file=$1
   ;;
   --is_upload_to_ru)
   is_upload_to_ru=true
