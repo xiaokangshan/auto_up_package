@@ -136,14 +136,14 @@ function overseas_upload()
     fi
   done
   for ftp_host in ${transfor_ftp_host};do
-    if [ "${ftp_host}" == "192.168.0.126" ];then
+    if [ "${ftp_host}" == "13.126.75.180" ];then
       user=exupgrade
       pass=BoUVmerZMGRuB4N2
-      proxy_ip="13.126.57.77"
-      proxy_user="exupgrade"
-      proxy_pass="BoUVmerZMGRuB4N2"
+      #proxy_ip="13.126.57.77"
+      #proxy_user="exupgrade"
+      #proxy_pass="BoUVmerZMGRuB4N2"
       echo "${project_name}项目升级包正在从香港ftp中转到印度ftp..."
-      connect_ftp="tsocks lftp -u ${user},${pass} ftp://${ftp_host}:21"
+      connect_ftp="lftp -u ${user},${pass} ftp://${ftp_host}:21"
     elif [ "${ftp_host}" == "10.60.0.216" ];then
       if [ "${is_upload_to_ru}" != "true" ];then
         echo "${project_name}项目升级包不需从香港ftp中转到俄罗斯ftp，跳过..." && continue
@@ -217,7 +217,7 @@ do
   shift
 done
 echo -e "\n================开始从香港ftp中转其他国家==============="
-if [ "${only_upload_recovery}" != "true" ];then
+if [ "${only_upload_recovery}" != "true" ] && [ "${upload_recovery_website}" != "true" ];then
   echo -e "需要从香港ftp中转其他国家的升级包:\n[${update_file}]\n"
 fi
 if [ "${no_upload_recovery}" != "true" ] && [ "${upload_recovery_website}" != "true" ];then
