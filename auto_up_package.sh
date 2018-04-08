@@ -9,6 +9,7 @@
 # 上传在线升级包到ftp
 function auto_up_package_to_ftp()
 {
+  # 上传官网包
   official_file="$(echo "${official_file}" | tr ',' ' ')"
   if [ "${upload_recovery_website}" == "true" ] && [ -f "${local_official_path}${official_file}" ];then
     echo "正在上传${official_file}官网升级包，请稍后..."
@@ -23,37 +24,27 @@ EOF
   update_file="$(echo "${update_file}" | tr ',' ' ')"
   recovery_file="$(echo "${recovery_file}" | tr ',' ' ')"
   no_exist_file_list=
+  # 上传增量升级包
   if [ "${only_upload_recovery}" != "true" ];then
     for file in ${update_file};do
       if [ ! -f "${local_update_path}${file}" ];then
         no_exist_file_list="${no_exist_file_list} ${file}"
       fi
     done
-    tmp_fifofile="/tmp/$$.fifo"
-    mkfifo $tmp_fifofile
-    exec 4<>$tmp_fifofile
-    rm $tmp_fifofile
-    for ((i=0;i<${thread};i++));do
-      echo ""
-    done >&4
     for file in ${update_file}
     do
-    if [ -f "${local_update_path}${file}" ];then
-      read -u4
-      {
-      echo "正在上传${file}升级包，请稍后..."
-      ${connect_ftp} <<EOF
-      cd ${update_ftp_path}
-      lcd ${local_update_path}
-      put ${file}
-      bye
+      if [ -f "${local_update_path}${file}" ];then
+        echo "正在上传${file}升级包，请稍后..."
+        ${connect_ftp} <<EOF
+        cd ${update_ftp_path}
+        lcd ${local_update_path}
+        put ${file}
+        bye
 EOF
-      sleep 3
-      echo "" >&4
-      }&
-    fi
+      fi
     done
   fi
+  # 上传recovery包
   if [ "${no_upload_recovery}" != "true" ];then
     if [ ! -f "${local_recovery_path}${recovery_file}" ];then
       no_exist_file_list="${no_exist_file_list} ${recovery_file}"
@@ -67,8 +58,6 @@ EOF
 EOF
     fi
   fi
-wait
-exec 4>&-
 
   if [ -n "$(echo "${no_exist_file_list}")" ];then
     no_exist_file_list="$(echo ${no_exist_file_list})"
