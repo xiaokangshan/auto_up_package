@@ -144,11 +144,13 @@ function overseas_upload()
       proxy_pass="BoUVmerZMGRuB4N2"
       echo "${project_name}项目升级包正在从香港ftp中转到俄罗斯ftp..."
       connect_ftp="tsocks lftp -u ${user},${pass} ftp://${ftp_host}:21"
-    elif [ "${ftp_host}" == "47.74.180.106" ];then
+    elif [ "${ftp_host}" == "47.88.226.3" ];then
       user=exupgrade
       pass=DCyDsybhLLguk7Yp
       echo "${project_name}项目升级包正在从香港ftp中转到新加坡ftp..."
       connect_ftp="lftp -u ${user},${pass} ftp://${ftp_host}:21"
+    else
+      echo "warning: unknow ftp host:${ftp_host}" && continue
     fi
 
     # 修改ftp代理服务器etc文件
