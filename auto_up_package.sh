@@ -68,7 +68,6 @@ EOF
 # 删除本地临时文件
 function remove_local_file()
 {
-  #echo "==================开始删除本次中转站的临时文件========================="
   for file in ${update_file};do
     if [ -f "${local_update_path}${file}" ];then
       rm -rf "${local_update_path}${file}"
@@ -77,7 +76,6 @@ function remove_local_file()
   if [ -f "${local_recovery_path}${recovery_file}" ];then
     rm -rf "${local_recovery_path}${recovery_file}"
   fi
-  #echo "=================删除本次中转站的临时文件结束=========================="
 }
 
 # ftp代理服务器修改etc文件
@@ -110,9 +108,7 @@ function overseas_upload()
   local_update_path="/data/www/upgrade/upload/UpdateFiles/"
   local_recovery_path="/data/www/upgrade/recovery/recoveryFiles/"
   local_official_path="/data/www/upgrade/official/officialFiles/"
-  thread=4
   etc_file="/etc/tsocks.conf"
-  transfor_ftp_host="$(echo "${transfor_ftp_host}" | tr ',' ' ')"
   if [ ! -d "${local_update_path}" ];then
     echo "ERROR: 本地路径${local_update_path}不存在，退出自动上传升级包。" && usage && exit 1
   fi
@@ -124,41 +120,22 @@ function overseas_upload()
       break
     fi
   done
-  for ftp_host in ${transfor_ftp_host};do
-    if [ "${ftp_host}" == "13.126.75.180" ];then
-      user=exupgrade
-      pass=BoUVmerZMGRuB4N2
-      #proxy_ip="13.126.57.77"
-      #proxy_user="exupgrade"
-      #proxy_pass="BoUVmerZMGRuB4N2"
-      echo "${project_name}项目升级包正在从香港ftp中转到印度ftp..."
-      connect_ftp="lftp -u ${user},${pass} ftp://${ftp_host}:21"
-    elif [ "${ftp_host}" == "10.60.0.216" ];then
-      if [ "${is_upload_to_ru}" != "true" ];then
-        echo "${project_name}项目升级包不需从香港ftp中转到俄罗斯ftp，跳过..." && continue
-      fi
-      user=exupgrade
-      pass=BoUVmerZMGRuB4N2
-      proxy_ip="128.1.43.63"
-      proxy_user="exupgrade"
-      proxy_pass="BoUVmerZMGRuB4N2"
-      echo "${project_name}项目升级包正在从香港ftp中转到俄罗斯ftp..."
-      connect_ftp="tsocks lftp -u ${user},${pass} ftp://${ftp_host}:21"
-    elif [ "${ftp_host}" == "47.88.226.3" ];then
-      user=exupgrade
-      pass=DCyDsybhLLguk7Yp
-      echo "${project_name}项目升级包正在从香港ftp中转到新加坡ftp..."
-      connect_ftp="lftp -u ${user},${pass} ftp://${ftp_host}:21"
-    else
-      echo "warning: unknow ftp host:${ftp_host}" && continue
-    fi
+  if [ "${transfor_ftp_host}" == "47.88.226.3" ];then
+    user=exupgradenew
+    pass=DCyDsybhLLguk7Yp
+    echo "${project_name}项目升级包正在从香港ftp中转到新加坡ftp..."
+    connect_ftp="lftp -u ${user},${pass} ftp://${ftp_host}:21"
+  else
+    echo "error: unknow ftp host:${transfor_ftp_host}" && exit 1
+  fi
 
-    # 修改ftp代理服务器etc文件
-    modify_etc_file
+  # 修改ftp代理服务器etc文件
+  #modify_etc_file
 
-    # 上传升级包
-    auto_up_package_to_ftp
-  done
+  # 上传升级包
+  auto_up_package_to_ftp
+
+  # 删除本地临时文件
   remove_local_file
 }
 
@@ -200,9 +177,6 @@ do
   --official_file)
   shift
   official_file=$1
-  ;;
-  --is_upload_to_ru)
-  is_upload_to_ru=true
   ;;
   esac
   shift
