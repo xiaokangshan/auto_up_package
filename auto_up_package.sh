@@ -76,6 +76,9 @@ function remove_local_file()
   if [ -f "${local_recovery_path}${recovery_file}" ];then
     rm -rf "${local_recovery_path}${recovery_file}"
   fi
+  if [ -f "${local_official_path}${official_file}" ];then
+    rm -rf "${local_official_path}${official_file}"
+  fi
 }
 
 # ftp代理服务器修改etc文件
@@ -112,19 +115,19 @@ function overseas_upload()
   if [ ! -d "${local_update_path}" ];then
     echo "ERROR: 本地路径${local_update_path}不存在，退出自动上传升级包。" && usage && exit 1
   fi
-  while [ "1" -eq "1" ];do
-    if [ -n "`ps aux | grep 'lftp -u' | grep -v 'grep'`" ];then
-      echo "有项目正在传升级包，请稍等60s..."
-      sleep 60
-    else
-      break
-    fi
-  done
+  #while [ "1" -eq "1" ];do
+  #  if [ -n "`ps aux | grep 'lftp -u' | grep -v 'grep'`" ];then
+  #    echo "有项目正在传升级包，请稍等60s..."
+  #    sleep 60
+  #  else
+  #    break
+  #  fi
+  #done
   if [ "${transfor_ftp_host}" == "47.88.226.3" ];then
     user=exupgradenew
     pass=DCyDsybhLLguk7Yp
     echo "${project_name}项目升级包正在从香港ftp中转到新加坡ftp..."
-    connect_ftp="lftp -u ${user},${pass} ftp://${ftp_host}:21"
+    connect_ftp="lftp -u ${user},${pass} ftp://${transfor_ftp_host}:21"
   else
     echo "error: unknow ftp host:${transfor_ftp_host}" && exit 1
   fi
