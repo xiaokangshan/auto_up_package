@@ -24,6 +24,24 @@ EOF
   update_file="$(echo "${update_file}" | tr ',' ' ')"
   recovery_file="$(echo "${recovery_file}" | tr ',' ' ')"
   no_exist_file_list=
+
+  # 上传vgc升级包
+  if [ "${vgc_cust}" == "true" ];then
+    for file in ${update_file}
+    do
+      if [ -f "${local_vgc_path}${file}" ];then
+        echo "正在上传${file} vgc升级包，请稍后..."
+        ${connect_ftp} <<EOF
+        cd ${vgc_ftp_path}
+        lcd ${local_vgc_path}
+        put ${file}
+        bye
+EOF
+      fi
+    done
+    return 0
+  fi
+
   # 上传增量升级包
   if [ "${only_upload_recovery}" != "true" ];then
     for file in ${update_file};do
@@ -111,6 +129,8 @@ function overseas_upload()
   local_update_path="/data/www/upgrade/upload/UpdateFiles/"
   local_recovery_path="/data/www/upgrade/recovery/recoveryFiles/"
   local_official_path="/data/www/upgrade/official/officialFiles/"
+  vgc_ftp_path="/vgc/files"
+  local_vgc_path="/data/www/upgrade/vgc/files/"
   etc_file="/etc/tsocks.conf"
   if [ ! -d "${local_update_path}" ];then
     echo "ERROR: 本地路径${local_update_path}不存在，退出自动上传升级包。" && usage && exit 1
@@ -180,6 +200,9 @@ do
   --official_file)
   shift
   official_file=$1
+  ;;
+  --vgc)
+  vgc_cust=true
   ;;
   esac
   shift
